@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import {
@@ -15,8 +15,18 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import Image from "next/image"
-import { TerminalSquareIcon, BotIcon, BookOpenIcon, Settings2Icon, LifeBuoyIcon, SendIcon, FrameIcon, PieChartIcon, MapIcon } from "lucide-react"
+import {
+  LayoutDashboardIcon,
+  PackageIcon,
+  NfcIcon,
+  ShieldCheckIcon,
+  KeyRoundIcon,
+  Settings2Icon,
+  LifeBuoyIcon,
+  SendIcon,
+  BookOpenIcon,
+  ActivityIcon,
+} from "lucide-react"
 
 const data = {
   user: {
@@ -26,100 +36,74 @@ const data = {
   },
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: (
-        <TerminalSquareIcon
-        />
-      ),
+      title: "Overview",
+      url: "/dashboard",
+      icon: <LayoutDashboardIcon />,
       isActive: true,
+      items: [],
+    },
+    {
+      title: "Products",
+      url: "/dashboard/products",
+      icon: <PackageIcon />,
       items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
+        { title: "All Products", url: "/dashboard/products" },
+        { title: "Register Product", url: "/dashboard/products/new" },
+        { title: "Revoked", url: "/dashboard/products/revoked" },
       ],
     },
     {
-      title: "Models",
-      url: "#",
-      icon: (
-        <BotIcon
-        />
-      ),
+      title: "NFC Tags",
+      url: "/dashboard/tags",
+      icon: <NfcIcon />,
       items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
+        { title: "All Tags", url: "/dashboard/tags" },
+        { title: "Personalize Tag", url: "/dashboard/tags/personalize" },
+      ],
+      isActive: true,
+    },
+    {
+      title: "Verifications",
+      url: "/dashboard/verifications",
+      icon: <ShieldCheckIcon />,
+      items: [
+        { title: "Scan Logs", url: "/dashboard/verifications" },
+        { title: "Verify a Tag", url: "/check" },
+      ],
+    },
+    {
+      title: "Analytics",
+      url: "/dashboard/analytics",
+      icon: <ActivityIcon />,
+      items: [
+        { title: "Scan Activity", url: "/dashboard/analytics" },
+        { title: "Geography", url: "/dashboard/analytics/geography" },
+      ],
+    },
+    {
+      title: "API Keys",
+      url: "/dashboard/api-keys",
+      icon: <KeyRoundIcon />,
+      items: [],
+    },
+    {
+      title: "Settings",
+      url: "/dashboard/settings",
+      icon: <Settings2Icon />,
+      items: [
+        { title: "Account", url: "/dashboard/settings" },
+        { title: "Billing", url: "/dashboard/settings/billing" },
+        { title: "Blockchain", url: "/dashboard/settings/blockchain" },
       ],
     },
     {
       title: "Documentation",
-      url: "#",
-      icon: (
-        <BookOpenIcon
-        />
-      ),
+      url: "/dashboard/docs",
+      icon: <BookOpenIcon />,
       items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: (
-        <Settings2Icon
-        />
-      ),
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
+        { title: "Getting Started", url: "/dashboard/docs" },
+        { title: "API Reference", url: "/dashboard/docs/api" },
+        { title: "Partner Integration", url: "/dashboard/docs/partners" },
       ],
     },
   ],
@@ -127,44 +111,12 @@ const data = {
     {
       title: "Support",
       url: "#",
-      icon: (
-        <LifeBuoyIcon
-        />
-      ),
+      icon: <LifeBuoyIcon />,
     },
     {
       title: "Feedback",
       url: "#",
-      icon: (
-        <SendIcon
-        />
-      ),
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: (
-        <FrameIcon
-        />
-      ),
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: (
-        <PieChartIcon
-        />
-      ),
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: (
-        <MapIcon
-        />
-      ),
+      icon: <SendIcon />,
     },
   ],
 }
@@ -176,7 +128,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <a href="/dashboard">
                 <div className="flex aspect-square size-8 items-center justify-center text-sidebar-primary-foreground">
                   <Image
                     src="/web-app-manifest-192x192.png"
@@ -187,8 +139,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Authlink</span>
-                  <span className="truncate text-xs">Enterprise</span>
+                  <span className="truncate font-semibold font-heading">Authlink</span>
+                  <span className="truncate text-xs">Manufacturer Portal</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -197,7 +149,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
