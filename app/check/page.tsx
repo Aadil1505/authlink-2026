@@ -99,7 +99,7 @@ function AuthenticState({
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-5 pb-1">
         <span className="font-heading text-base font-bold tracking-tight text-foreground">
-          authlink
+          Authlink
         </span>
         <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 border border-emerald-200 dark:border-emerald-500/20">
           <ShieldCheck className="size-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -255,7 +255,7 @@ function FailState({ reason }: { reason: string }) {
       {/* Header */}
       <header className="px-5 pt-5">
         <span className="font-heading text-base font-bold tracking-tight text-foreground">
-          authlink
+          Authlink
         </span>
       </header>
 

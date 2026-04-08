@@ -6,7 +6,7 @@ export default function Loading() {
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-5 pb-1">
         <span className="font-heading text-base font-bold tracking-tight text-foreground">
-          authlink
+          Authlink
         </span>
         <div className="h-6 w-20 rounded-full bg-muted animate-pulse" />
       </header>
