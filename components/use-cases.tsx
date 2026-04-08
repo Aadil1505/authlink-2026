@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Watch, Shirt, Cpu, Wine, Footprints } from "lucide-react"
+import { LogoCloud } from "@/components/logo-cloud"
 
 const cases = [
   {
@@ -123,6 +124,8 @@ export function UseCases() {
             </div>
           ))}
         </div>
+
+        <LogoCloud />
 
       </div>
     </section>

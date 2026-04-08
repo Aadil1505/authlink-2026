@@ -1,0 +1,603 @@
+{
+  "address": "CELsxhAryfqKGXmXuaTNyFMQDJhRGCYCKLRaE7oMUP3t",
+  "metadata": {
+    "name": "product_registry",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "deactivate_manufacturer",
+      "docs": [
+        "Admin deactivates a manufacturer — their existing products remain, new ones blocked."
+      ],
+      "discriminator": [
+        114,
+        216,
+        114,
+        167,
+        178,
+        112,
+        62,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "manufacturer_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  117,
+                  102,
+                  97,
+                  99,
+                  116,
+                  117,
+                  114,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "manufacturer_record.authority",
+                "account": "ManufacturerRecord"
+              }
+            ]
+          }
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Called once at deployment. Sets the admin wallet that controls manufacturer registration."
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "register_manufacturer",
+      "docs": [
+        "Admin registers a manufacturer wallet, allowing them to register products."
+      ],
+      "discriminator": [
+        209,
+        17,
+        71,
+        213,
+        190,
+        230,
+        125,
+        136
+      ],
+      "accounts": [
+        {
+          "name": "manufacturer_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  117,
+                  102,
+                  97,
+                  99,
+                  116,
+                  117,
+                  114,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "manufacturer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "manufacturer"
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "register_product",
+      "docs": [
+        "Manufacturer registers a product. uid_hash = keccak256(tag_uid).",
+        "PDA created at seeds [\"product\", uid_hash] — its existence = registered."
+      ],
+      "discriminator": [
+        224,
+        97,
+        195,
+        220,
+        124,
+        218,
+        78,
+        43
+      ],
+      "accounts": [
+        {
+          "name": "product_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  100,
+                  117,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "uid_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "manufacturer_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  117,
+                  102,
+                  97,
+                  99,
+                  116,
+                  117,
+                  114,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "manufacturer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "manufacturer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "uid_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "metadata_uri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "revoke_product",
+      "docs": [
+        "Manufacturer revokes a product (recall, fraud, etc). Sets active = false."
+      ],
+      "discriminator": [
+        142,
+        156,
+        140,
+        145,
+        143,
+        222,
+        163,
+        192
+      ],
+      "accounts": [
+        {
+          "name": "product_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  100,
+                  117,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "product_record.uid_hash",
+                "account": "ProductRecord"
+              }
+            ]
+          }
+        },
+        {
+          "name": "manufacturer_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  117,
+                  102,
+                  97,
+                  99,
+                  116,
+                  117,
+                  114,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "manufacturer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "manufacturer",
+          "signer": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ManufacturerRecord",
+      "discriminator": [
+        231,
+        12,
+        189,
+        44,
+        18,
+        158,
+        77,
+        228
+      ]
+    },
+    {
+      "name": "ProductRecord",
+      "discriminator": [
+        213,
+        201,
+        174,
+        225,
+        27,
+        37,
+        156,
+        86
+      ]
+    },
+    {
+      "name": "ProgramConfig",
+      "discriminator": [
+        196,
+        210,
+        90,
+        231,
+        144,
+        149,
+        140,
+        63
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ManufacturerRegistered",
+      "discriminator": [
+        134,
+        136,
+        92,
+        72,
+        4,
+        199,
+        221,
+        171
+      ]
+    },
+    {
+      "name": "ProductRegistered",
+      "discriminator": [
+        116,
+        97,
+        68,
+        213,
+        201,
+        211,
+        170,
+        221
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: signer is not the admin"
+    },
+    {
+      "code": 6001,
+      "name": "ManufacturerInactive",
+      "msg": "Manufacturer is not active"
+    },
+    {
+      "code": 6002,
+      "name": "NameTooLong",
+      "msg": "Name exceeds maximum length of 64 characters"
+    },
+    {
+      "code": 6003,
+      "name": "UriTooLong",
+      "msg": "Metadata URI exceeds maximum length of 128 characters"
+    }
+  ],
+  "types": [
+    {
+      "name": "ManufacturerRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "registered_at",
+            "type": "i64"
+          },
+          {
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ManufacturerRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "registered_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProductRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "manufacturer",
+            "type": "pubkey"
+          },
+          {
+            "name": "uid_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "registered_at",
+            "type": "i64"
+          },
+          {
+            "name": "metadata_uri",
+            "type": "string"
+          },
+          {
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProductRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "uid_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "manufacturer",
+            "type": "pubkey"
+          },
+          {
+            "name": "registered_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProgramConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}
