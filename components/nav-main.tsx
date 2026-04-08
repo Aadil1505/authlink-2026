@@ -42,7 +42,7 @@ export function NavMain({
               <SidebarMenuButton asChild tooltip={item.title}>
                 <a href={item.url}>
                   {item.icon}
-                  <span className="font-heading">{item.title}</span>
+                  <span className="font-heading font-semibold">{item.title}</span>
                 </a>
               </SidebarMenuButton>
               {item.items?.length ? (

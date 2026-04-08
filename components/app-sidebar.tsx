@@ -49,8 +49,9 @@ const data = {
       items: [
         { title: "All Products", url: "/dashboard/products" },
         { title: "Register Product", url: "/dashboard/products/new" },
-        { title: "Revoked", url: "/dashboard/products/revoked" },
       ],
+      isActive: true,
+
     },
     {
       title: "NFC Tags",
