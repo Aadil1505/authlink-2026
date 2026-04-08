@@ -3,6 +3,9 @@
 import { FlickeringGrid } from "@/components/ui/flickering-grid"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Check } from "lucide-react"
+import { motion } from "motion/react"
+
+const ease = [0.25, 0.46, 0.45, 0.94] as const
 
 export function Hero() {
   return (
@@ -20,19 +23,34 @@ export function Hero() {
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-8 px-6 py-32 text-center lg:py-44">
 
         {/* Heading */}
-        <h1 className="font-heading text-6xl font-semibold leading-[1.06] tracking-tight text-foreground lg:text-7xl">
+        <motion.h1
+          className="font-heading text-6xl font-semibold leading-[1.06] tracking-tight text-foreground lg:text-7xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease, delay: 0.05 }}
+        >
           Authenticity Your
           <br />
           Customers Can Trust.
-        </h1>
+        </motion.h1>
 
         {/* Subtext */}
-        <p className="max-w-115 text-lg leading-relaxed text-muted-foreground">
+        <motion.p
+          className="max-w-115 text-lg leading-relaxed text-muted-foreground"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease, delay: 0.18 }}
+        >
           Cryptographic and tamper-proof authenticity powered by Solana for any product.
-        </p>
+        </motion.p>
 
         {/* CTAs */}
-        <div className="flex items-center gap-3">
+        <motion.div
+          className="flex items-center gap-3"
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease, delay: 0.28 }}
+        >
           <Button className="h-11 gap-2 px-7 text-sm font-medium">
             Book a Demo <ArrowRight className="size-4" />
           </Button>
@@ -42,10 +60,15 @@ export function Hero() {
           >
             See how it works
           </Button>
-        </div>
+        </motion.div>
 
         {/* Stats */}
-        <div className="flex w-full max-w-md items-center divide-x divide-border pt-2">
+        <motion.div
+          className="flex w-full max-w-md items-center divide-x divide-border pt-2"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease, delay: 0.38 }}
+        >
           {[
             { value: "$179B", label: "Anti-counterfeit market" },
             { value: "<1s", label: "Verification time" },
@@ -58,10 +81,15 @@ export function Hero() {
               <span className="text-xs text-muted-foreground">{label}</span>
             </div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Mockup */}
-        <div className="mt-6 w-full max-w-sm">
+        <motion.div
+          className="mt-6 w-full max-w-sm"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease, delay: 0.5 }}
+        >
           <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
 
             {/* Browser chrome */}
@@ -107,7 +135,7 @@ export function Hero() {
             </div>
 
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </section>

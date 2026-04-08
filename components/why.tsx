@@ -1,4 +1,9 @@
+"use client"
+
 import { TrendingUp, Users, Award, RefreshCw, ShieldAlert, LineChart } from "lucide-react"
+import { motion } from "motion/react"
+
+const ease = [0.25, 0.46, 0.45, 0.94] as const
 
 const reasons = [
   {
@@ -45,7 +50,13 @@ export function Why() {
       <div className="mx-auto max-w-6xl px-6 py-24 lg:py-32">
 
         {/* Header */}
-        <div className="mx-auto mb-16 flex max-w-xl flex-col items-center gap-4 text-center">
+        <motion.div
+          className="mx-auto mb-16 flex max-w-xl flex-col items-center gap-4 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.55, ease }}
+        >
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             Why Authlink
           </p>
@@ -59,14 +70,18 @@ export function Why() {
             revenue problem, and a customer trust problem. Authlink solves all
             three.
           </p>
-        </div>
+        </motion.div>
 
         {/* Reasons grid */}
         <div className="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3 rounded-2xl overflow-hidden border border-border">
-          {reasons.map(({ icon: Icon, title, description }) => (
-            <div
+          {reasons.map(({ icon: Icon, title, description }, i) => (
+            <motion.div
               key={title}
               className="group flex flex-col gap-4 bg-card p-8 transition-colors hover:bg-muted/40"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.45, ease, delay: (i % 3) * 0.08 }}
             >
               <div className="flex size-9 items-center justify-center rounded-lg border border-border bg-muted transition-colors group-hover:border-primary/30 group-hover:bg-primary/5">
                 <Icon className="size-4 text-foreground transition-colors group-hover:text-primary" />
@@ -79,7 +94,7 @@ export function Why() {
                   {description}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 

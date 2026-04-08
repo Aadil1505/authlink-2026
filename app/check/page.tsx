@@ -1,18 +1,11 @@
+import { eq } from "drizzle-orm";
 import { ShieldCheck, ShieldX, ExternalLink, Clock, Calendar, Building2, Hash, Globe } from "lucide-react";
 import { validateTag } from "@/lib/sdm";
-import { lookupProduct, type ProductRecord } from "@/lib/solana";
-import { fetchMetadata, type ProductMetadata } from "@/lib/ipfs";
+import { explorerTxUrl, explorerAddressUrl } from "@/lib/solana";
+import { db } from "@/db/drizzle";
+import { tag, product } from "@/db/schema";
 
-const EXPLORER_BASE = "https://explorer.solana.com/address";
 const CLUSTER = process.env.SOLANA_CLUSTER ?? "devnet";
-
-function resolveIpfs(uri: string): string {
-  return uri.startsWith("ipfs://")
-    ? uri.replace("ipfs://", "https://ipfs.io/ipfs/")
-    : uri;
-}
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function CheckPage({
   searchParams,
@@ -25,6 +18,7 @@ export default async function CheckPage({
     return <FailState reason="Invalid verification link." />;
   }
 
+  // 1. Validate the CMAC — proves the chip is genuine hardware
   try {
     await validateTag(uid, ctr, cmac);
   } catch {
@@ -33,70 +27,56 @@ export default async function CheckPage({
     );
   }
 
-  const product = await lookupProduct(uid);
+  // 2. Look up tag + product from Postgres (fast, no RPC call)
+  const rows = await db
+    .select({
+      tag: tag,
+      product: product,
+    })
+    .from(tag)
+    .innerJoin(product, eq(tag.productId, product.id))
+    .where(eq(tag.uid, uid.toUpperCase()))
+    .limit(1);
 
-  if (!product) {
+  if (rows.length === 0) {
     return (
       <FailState reason="Product not found in registry. It may not have been registered." />
     );
   }
 
-  if (!product.active) {
+  const { tag: tagRecord, product: productRecord } = rows[0];
+
+  if (!tagRecord.active) {
     return (
       <FailState reason="This product has been recalled or deactivated." />
     );
   }
 
-  const metadata = await fetchMetadata(product.metadataUri);
-
-  return <AuthenticState product={product} metadata={metadata} />;
+  return <AuthenticState tag={tagRecord} product={productRecord} />;
 }
 
 // ── Authentic ─────────────────────────────────────────────────────────────────
 
 function AuthenticState({
-  product,
-  metadata,
+  tag: tagRecord,
+  product: productRecord,
 }: {
-  product: ProductRecord;
-  metadata: ProductMetadata | null;
+  tag: typeof tag.$inferSelect;
+  product: typeof product.$inferSelect;
 }) {
-  const explorerUrl = `${EXPLORER_BASE}/${product.productPDA}${CLUSTER === "devnet" ? "?cluster=devnet" : ""}`;
-  const ts = new Date(product.registeredAt * 1000);
-
+  const ts = new Date(tagRecord.registeredAt);
   const registeredDate = ts.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+    year: "numeric", month: "long", day: "numeric",
   });
   const registeredTime = ts.toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZoneName: "short",
+    hour: "2-digit", minute: "2-digit", timeZoneName: "short",
   });
 
-  const imageUrl = metadata?.image ? resolveIpfs(metadata.image) : null;
-
-  const attributes = Array.isArray(
-    (metadata as Record<string, unknown> | null)?.attributes
-  )
-    ? (
-        (metadata as Record<string, unknown>).attributes as Array<{
-          trait_type: string;
-          value: string | number;
-        }>
-      )
-    : null;
-
-  const externalUrl =
-    typeof (metadata as Record<string, unknown> | null)?.external_url ===
-    "string"
-      ? ((metadata as Record<string, unknown>).external_url as string)
-      : null;
+  const txUrl = explorerTxUrl(tagRecord.registrationTx);
+  const mfgUrl = explorerAddressUrl(tagRecord.manufacturerPda);
 
   return (
     <div className="min-h-svh bg-background">
-      {/* Header */}
       <header className="flex items-center justify-between px-5 pt-5 pb-1">
         <span className="font-heading text-base font-bold tracking-tight text-foreground">
           Authlink
@@ -111,20 +91,17 @@ function AuthenticState({
 
       {/* Product image */}
       <div className="mx-5 mt-4 rounded-2xl overflow-hidden bg-muted aspect-square relative">
-        {imageUrl ? (
+        {productRecord.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={imageUrl}
-            alt={metadata?.name ?? "Product"}
+            src={productRecord.imageUrl}
+            alt={productRecord.name}
             className="w-full h-full object-cover"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-linear-to-br from-primary/5 via-primary/10 to-primary/20">
             <div className="rounded-full bg-primary/15 p-6">
-              <ShieldCheck
-                className="size-16 text-primary"
-                strokeWidth={1.25}
-              />
+              <ShieldCheck className="size-16 text-primary" strokeWidth={1.25} />
             </div>
             <p className="text-xs font-semibold uppercase tracking-widest text-primary/60">
               Verified Authentic
@@ -133,54 +110,18 @@ function AuthenticState({
         )}
       </div>
 
-      {/* Content */}
       <div className="px-5 pt-5 pb-10 space-y-6">
         {/* Product name & description */}
         <div>
           <h1 className="text-2xl font-heading font-bold text-foreground leading-tight">
-            {metadata?.name ?? "Genuine Product"}
+            {productRecord.name}
           </h1>
-          {metadata?.description && (
+          {productRecord.description && (
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-              {metadata.description}
+              {productRecord.description}
             </p>
           )}
-          {externalUrl && (
-            <a
-              href={externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline underline-offset-2"
-            >
-              Product page
-              <ExternalLink className="size-3" />
-            </a>
-          )}
         </div>
-
-        {/* Attributes */}
-        {attributes && attributes.length > 0 && (
-          <div>
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
-              Details
-            </h2>
-            <div className="grid grid-cols-2 gap-2">
-              {attributes.map((attr, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border border-border bg-muted/30 px-3 py-2.5"
-                >
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                    {attr.trait_type}
-                  </p>
-                  <p className="text-sm font-semibold text-foreground mt-0.5 truncate">
-                    {String(attr.value)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Blockchain record */}
         <div className="rounded-2xl border border-border overflow-hidden">
@@ -193,54 +134,55 @@ function AuthenticState({
 
           <div className="divide-y divide-border">
             <ChainRow icon={<Calendar className="size-3.5" />} label="Registered">
-              <span className="text-sm font-medium text-foreground">
-                {registeredDate}
-              </span>
+              <span className="text-sm font-medium">{registeredDate}</span>
             </ChainRow>
-
             <ChainRow icon={<Clock className="size-3.5" />} label="Time">
-              <span className="text-sm text-foreground">{registeredTime}</span>
+              <span className="text-sm">{registeredTime}</span>
             </ChainRow>
-
-            <ChainRow
-              icon={<Building2 className="size-3.5" />}
-              label="Manufacturer"
-            >
-              <code className="text-xs font-mono bg-muted rounded px-1.5 py-0.5 text-foreground">
-                {product.manufacturer.slice(0, 6)}…
-                {product.manufacturer.slice(-4)}
-              </code>
+            <ChainRow icon={<Building2 className="size-3.5" />} label="Manufacturer">
+              <a
+                href={mfgUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-primary hover:underline underline-offset-2"
+              >
+                <code className="text-xs font-mono bg-muted rounded px-1.5 py-0.5">
+                  {tagRecord.manufacturerPda.slice(0, 6)}…{tagRecord.manufacturerPda.slice(-4)}
+                </code>
+                <ExternalLink className="size-3" />
+              </a>
             </ChainRow>
-
-            <ChainRow icon={<Hash className="size-3.5" />} label="Product ID">
-              <code className="text-xs font-mono bg-muted rounded px-1.5 py-0.5 text-foreground">
-                {product.productPDA.slice(0, 6)}…
-                {product.productPDA.slice(-4)}
-              </code>
+            <ChainRow icon={<Hash className="size-3.5" />} label="Transaction">
+              <a
+                href={txUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-primary hover:underline underline-offset-2"
+              >
+                <code className="text-xs font-mono bg-muted rounded px-1.5 py-0.5">
+                  {tagRecord.registrationTx.slice(0, 6)}…{tagRecord.registrationTx.slice(-4)}
+                </code>
+                <ExternalLink className="size-3" />
+              </a>
             </ChainRow>
-
             <ChainRow icon={<Globe className="size-3.5" />} label="Network">
-              <span className="text-sm text-foreground capitalize">
-                {CLUSTER}
-              </span>
+              <span className="text-sm capitalize">{CLUSTER}</span>
             </ChainRow>
           </div>
 
           <a
-            href={explorerUrl}
+            href={txUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-between px-4 py-3 bg-muted/20 border-t border-border text-sm text-primary hover:bg-muted/40 transition-colors"
           >
-            <span className="font-medium">View on Solana Explorer</span>
+            <span className="font-medium">View registration on Solana Explorer</span>
             <ExternalLink className="size-3.5" />
           </a>
         </div>
 
-        {/* Footer */}
         <p className="text-center text-xs text-muted-foreground pt-1">
-          Secured by{" "}
-          <span className="font-semibold text-foreground">Authlink</span>
+          Secured by <span className="font-semibold text-foreground">Authlink</span>
         </p>
       </div>
     </div>
@@ -252,63 +194,41 @@ function AuthenticState({
 function FailState({ reason }: { reason: string }) {
   return (
     <div className="min-h-svh bg-background flex flex-col">
-      {/* Header */}
       <header className="px-5 pt-5">
         <span className="font-heading text-base font-bold tracking-tight text-foreground">
           Authlink
         </span>
       </header>
-
       <div className="flex-1 flex flex-col items-center justify-center px-5 py-12">
         <div className="w-full max-w-sm space-y-6 text-center">
-          {/* Icon */}
           <div className="mx-auto rounded-full bg-destructive/10 p-6 w-fit">
-            <ShieldX
-              className="size-16 text-destructive"
-              strokeWidth={1.25}
-            />
+            <ShieldX className="size-16 text-destructive" strokeWidth={1.25} />
           </div>
-
-          {/* Status */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
               Verification Failed
             </p>
-            <h1 className="text-2xl font-heading font-bold text-foreground">
-              Not Authentic
-            </h1>
-            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              {reason}
-            </p>
+            <h1 className="text-2xl font-heading font-bold text-foreground">Not Authentic</h1>
+            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{reason}</p>
           </div>
-
-          {/* Warning box */}
           <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-left">
             <p className="text-xs text-destructive/80 leading-relaxed">
-              If you believe this is an error, contact the seller or
-              manufacturer and share the full URL of this verification page.
+              If you believe this is an error, contact the seller or manufacturer
+              and share the full URL of this verification page.
             </p>
           </div>
         </div>
       </div>
-
       <footer className="px-5 pb-8 text-center">
         <p className="text-xs text-muted-foreground">
-          Secured by{" "}
-          <span className="font-semibold text-foreground">Authlink</span>
+          Secured by <span className="font-semibold text-foreground">Authlink</span>
         </p>
       </footer>
     </div>
   );
 }
 
-// ── Utility ───────────────────────────────────────────────────────────────────
-
-function ChainRow({
-  icon,
-  label,
-  children,
-}: {
+function ChainRow({ icon, label, children }: {
   icon: React.ReactNode;
   label: string;
   children: React.ReactNode;

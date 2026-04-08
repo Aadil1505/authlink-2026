@@ -112,9 +112,41 @@ export const accountRelations = relations(account, ({ one }) => ({
   }),
 }));
 
-export const productRelations = relations(product, ({ one }) => ({
+export const productRelations = relations(product, ({ one, many }) => ({
   user: one(user, {
     fields: [product.userId],
     references: [user.id],
   }),
+  tags: many(tag),
+}));
+
+// One row per physical NFC tag that has been registered on-chain.
+// The registrationTx is the Solana transaction signature — the cryptographic proof.
+export const tag = pgTable(
+  "tag",
+  {
+    id: text("id").primaryKey(),
+    uid: text("uid").notNull().unique(),
+    productId: text("product_id")
+      .notNull()
+      .references(() => product.id, { onDelete: "restrict" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "restrict" }),
+    manufacturerPda: text("manufacturer_pda").notNull(),
+    registrationTx: text("registration_tx").notNull(),
+    revocationTx: text("revocation_tx"),
+    active: boolean("active").default(true).notNull(),
+    registeredAt: timestamp("registered_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("tag_uid_idx").on(table.uid),
+    index("tag_userId_idx").on(table.userId),
+    index("tag_productId_idx").on(table.productId),
+  ],
+);
+
+export const tagRelations = relations(tag, ({ one }) => ({
+  product: one(product, { fields: [tag.productId], references: [product.id] }),
+  user: one(user, { fields: [tag.userId], references: [user.id] }),
 }));

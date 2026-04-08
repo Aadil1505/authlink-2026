@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import { validateTag } from "@/lib/sdm";
-import { lookupProduct } from "@/lib/solana";
-import { fetchMetadata } from "@/lib/ipfs";
+import { db } from "@/db/drizzle";
+import { tag, product } from "@/db/schema";
 
 /**
  * GET /api/verify?uid=XX&ctr=YY&cmac=ZZ
  *
  * JSON verification endpoint for partners (StockX, retailers, etc.)
- * Same two-layer check as the consumer UI — CMAC + Solana PDA lookup.
+ * Same two-layer check as the consumer UI — CMAC + Postgres lookup.
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Layer 1 — CMAC validation
+  // Layer 1 — CMAC validation (proves genuine hardware)
   try {
     await validateTag(uid, ctr, cmac);
   } catch (err) {
@@ -32,32 +33,45 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Layer 2 — On-chain lookup
-  const product = await lookupProduct(uid);
+  // Layer 2 — Registry lookup
+  const rows = await db
+    .select({ tag: tag, product: product })
+    .from(tag)
+    .innerJoin(product, eq(tag.productId, product.id))
+    .where(eq(tag.uid, uid.toUpperCase()))
+    .limit(1);
 
-  if (!product) {
+  if (rows.length === 0) {
     return NextResponse.json(
       { authentic: false, error: "Product not registered on-chain" },
       { status: 404 }
     );
   }
 
-  if (!product.active) {
+  const { tag: tagRecord, product: productRecord } = rows[0];
+
+  if (!tagRecord.active) {
     return NextResponse.json(
-      { authentic: false, error: "Product has been recalled", productPDA: product.productPDA },
+      {
+        authentic: false,
+        error: "Product has been recalled or deactivated",
+        manufacturerPda: tagRecord.manufacturerPda,
+        revocationTx: tagRecord.revocationTx,
+      },
       { status: 403 }
     );
   }
 
-  const metadata = await fetchMetadata(product.metadataUri);
-
   return NextResponse.json({
     authentic: true,
-    uid,
-    productPDA: product.productPDA,
-    manufacturer: product.manufacturer,
-    registeredAt: product.registeredAt,
-    metadataUri: product.metadataUri,
-    metadata,
+    uid: tagRecord.uid,
+    manufacturerPda: tagRecord.manufacturerPda,
+    registrationTx: tagRecord.registrationTx,
+    registeredAt: tagRecord.registeredAt,
+    product: {
+      name: productRecord.name,
+      description: productRecord.description,
+      imageUrl: productRecord.imageUrl,
+    },
   });
 }

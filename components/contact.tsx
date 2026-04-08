@@ -1,11 +1,22 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Mail, MessageSquare } from "lucide-react"
+import { motion } from "motion/react"
+
+const ease = [0.25, 0.46, 0.45, 0.94] as const
 
 export function Contact() {
   return (
     <section id="contact">
       <div className="mx-auto max-w-6xl px-6 py-24 lg:py-32">
-        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        <motion.div
+          className="overflow-hidden rounded-2xl border border-border bg-card"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease }}
+        >
           <div className="grid lg:grid-cols-2">
 
             {/* Left — CTA */}
@@ -113,7 +124,7 @@ export function Contact() {
             </div>
 
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   )

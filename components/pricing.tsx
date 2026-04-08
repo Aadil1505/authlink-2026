@@ -1,7 +1,12 @@
+"use client"
+
 import { Check, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { motion } from "motion/react"
+
+const ease = [0.25, 0.46, 0.45, 0.94] as const
 
 const plans = [
   {
@@ -72,7 +77,13 @@ export function Pricing() {
       <div className="mx-auto max-w-6xl px-6 py-24 lg:py-32">
 
         {/* Header */}
-        <div className="mx-auto mb-16 flex max-w-xl flex-col items-center gap-4 text-center">
+        <motion.div
+          className="mx-auto mb-16 flex max-w-xl flex-col items-center gap-4 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.55, ease }}
+        >
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             Pricing
           </p>
@@ -85,12 +96,12 @@ export function Pricing() {
             No hidden fees. No per-scan surprises on Starter and Growth.
             Pick the plan that fits your volume — upgrade any time.
           </p>
-        </div>
+        </motion.div>
 
         {/* Plans */}
         <div className="grid gap-4 lg:grid-cols-3">
-          {plans.map(({ name, price, period, description, cta, href, highlight, features }) => (
-            <div
+          {plans.map(({ name, price, period, description, cta, href, highlight, features }, i) => (
+            <motion.div
               key={name}
               className={cn(
                 "relative flex flex-col rounded-2xl border p-8",
@@ -98,6 +109,10 @@ export function Pricing() {
                   ? "border-primary bg-primary text-primary-foreground shadow-lg"
                   : "border-border bg-card"
               )}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, ease, delay: i * 0.1 }}
             >
               {/* Popular badge */}
               {highlight && (
@@ -178,18 +193,24 @@ export function Pricing() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Bottom note */}
-        <p className="mt-10 text-center text-sm text-muted-foreground">
+        <motion.p
+          className="mt-10 text-center text-sm text-muted-foreground"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease, delay: 0.3 }}
+        >
           NFC tags sold separately. Volume discounts available on all plans.{" "}
           <Link href="#contact" className="text-foreground underline underline-offset-4">
             Talk to sales
           </Link>{" "}
           for custom tag pricing.
-        </p>
+        </motion.p>
 
       </div>
     </section>

@@ -26,7 +26,12 @@ export default function RootLayout({
       className={cn("antialiased", fontSans.variable, "font-mono", geistMono.variable, interHeading.variable)}
     >
       <body>
-        <ThemeProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <TooltipProvider>
             {children}
           </TooltipProvider>

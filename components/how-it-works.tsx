@@ -1,4 +1,9 @@
+"use client"
+
 import { Package, Cpu, Smartphone } from "lucide-react"
+import { motion } from "motion/react"
+
+const ease = [0.25, 0.46, 0.45, 0.94] as const
 
 const steps = [
   {
@@ -33,7 +38,13 @@ export function HowItWorks() {
       <div className="mx-auto max-w-6xl px-6 py-24 lg:py-32">
 
         {/* Header */}
-        <div className="mx-auto mb-16 flex max-w-xl flex-col items-center gap-4 text-center">
+        <motion.div
+          className="mx-auto mb-16 flex max-w-xl flex-col items-center gap-4 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.55, ease }}
+        >
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             How It Works
           </p>
@@ -46,14 +57,20 @@ export function HowItWorks() {
             Authlink plugs into your existing manufacturing workflow — and
             delivers instant trust at every point of sale.
           </p>
-        </div>
+        </motion.div>
 
         {/* Steps grid */}
         <div className="overflow-hidden rounded-2xl border border-border">
           <div className="grid grid-cols-1 gap-px bg-border lg:grid-cols-3">
-            {steps.map(({ number, icon: Icon, title, description, detail }) => (
-              <div key={number} className="flex flex-col gap-6 bg-card p-8">
-
+            {steps.map(({ number, icon: Icon, title, description, detail }, i) => (
+              <motion.div
+                key={number}
+                className="flex flex-col gap-6 bg-card p-8"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, ease, delay: i * 0.1 }}
+              >
                 {/* Icon + number row */}
                 <div className="flex items-start justify-between">
                   <div className="flex size-10 items-center justify-center rounded-xl border border-border bg-muted">
@@ -81,7 +98,7 @@ export function HowItWorks() {
                   </p>
                 </div>
 
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

@@ -1,6 +1,11 @@
+"use client"
+
 import { cn } from "@/lib/utils"
 import { Watch, Shirt, Cpu, Wine, Footprints } from "lucide-react"
 import { LogoCloud } from "@/components/logo-cloud"
+import { motion } from "motion/react"
+
+const ease = [0.25, 0.46, 0.45, 0.94] as const
 
 const cases = [
   {
@@ -56,7 +61,13 @@ export function UseCases() {
       <div className="mx-auto max-w-6xl px-6 py-24 lg:py-32">
 
         {/* Header */}
-        <div className="mx-auto mb-16 flex max-w-xl flex-col items-center gap-4 text-center">
+        <motion.div
+          className="mx-auto mb-16 flex max-w-xl flex-col items-center gap-4 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.55, ease }}
+        >
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             Use Cases
           </p>
@@ -69,18 +80,21 @@ export function UseCases() {
             Wherever counterfeiting causes harm — to brands, customers, or
             public safety — Authlink provides a verifiable answer.
           </p>
-        </div>
+        </motion.div>
 
         {/* Grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {cases.map(({ icon: Icon, industry, headline, description, tags, stat }, i) => (
-            <div
+            <motion.div
               key={industry}
               className={cn(
                 "group flex flex-col gap-6 rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40",
-                // first card spans 2 cols on lg for visual variety
                 i === 0 && "lg:col-span-2"
               )}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, ease, delay: Math.min(i, 2) * 0.08 }}
             >
               {/* Icon + industry */}
               <div className="flex items-center gap-3">
@@ -121,7 +135,7 @@ export function UseCases() {
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">{stat.label}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
