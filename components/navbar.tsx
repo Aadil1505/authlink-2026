@@ -12,6 +12,7 @@ const links = [
   { label: "Features", href: "#features" },
   { label: "Use Cases", href: "#use-cases" },
   { label: "Pricing", href: "#pricing" },
+  { label: "Get in Touch", href: "#contact" },
 ]
 
 export function Navbar() {
@@ -101,12 +102,6 @@ export function Navbar() {
 
               {/* Buttons */}
               <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-3 lg:w-auto">
-                {/* Sign In — hidden when scrolled on desktop */}
-                <Button asChild variant="outline" size="sm">
-                  <Link href="/login">Sign In</Link>
-                </Button>
-
-                {/* Book a Demo — always visible */}
                 <Button asChild size="sm">
                   <Link href="#contact">Book a Demo</Link>
                 </Button>

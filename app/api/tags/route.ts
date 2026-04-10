@@ -125,6 +125,7 @@ export async function POST(req: NextRequest) {
         productId,
         userId: session.user.id,
         manufacturerPda,
+        manufacturerName: session.user.name ?? "Manufacturer",
         registrationTx: signature,
       })
       .returning();

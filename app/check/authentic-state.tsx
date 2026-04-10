@@ -17,7 +17,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 const ease = [0.25, 0.1, 0.25, 1] as const;
 
@@ -32,12 +32,14 @@ export function AuthenticState({
   cluster,
   txUrl,
   mfgUrl,
+  manufacturerName,
 }: {
   tag: typeof tag.$inferSelect;
   product: typeof product.$inferSelect;
   cluster: string;
   txUrl: string;
   mfgUrl: string;
+  manufacturerName: string;
 }) {
   const searchParams = useSearchParams();
   const uid = searchParams.get("uid");
@@ -119,10 +121,7 @@ export function AuthenticState({
           rel="noopener noreferrer"
           className="flex items-center gap-1 text-primary hover:underline underline-offset-2"
         >
-          <code className="text-xs font-mono px-1.5 py-0.5">
-            {tagRecord.manufacturerPda.slice(0, 6)}…
-            {tagRecord.manufacturerPda.slice(-4)}
-          </code>
+          <span className="text-sm font-medium">{manufacturerName}</span>
           <ExternalLink className="size-3" />
         </Link>
       ),
@@ -161,9 +160,9 @@ export function AuthenticState({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease }}
       >
-        <span className="font-heading text-sm font-bold tracking-tight text-foreground">
+        <Link href="/" className="font-heading text-sm font-bold tracking-tight text-foreground hover:opacity-70 transition-opacity">
           Authlink
-        </span>
+        </Link>
         <motion.div
           className="flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 border border-emerald-200 dark:border-emerald-500/20"
           initial={{ opacity: 0, scale: 0.8 }}

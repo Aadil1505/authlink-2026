@@ -68,6 +68,7 @@ async function VerifyResult({
       cluster={CLUSTER}
       txUrl={explorerTxUrl(tagRecord.registrationTx)}
       mfgUrl={explorerAddressUrl(tagRecord.manufacturerPda)}
+      manufacturerName={tagRecord.manufacturerName}
     />
   );
 }
