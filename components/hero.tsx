@@ -59,7 +59,7 @@ export function Hero() {
           </Button>
           <Button
             asChild
-            variant="ghost"
+            variant="outline"
             className="h-11 px-5 text-sm text-muted-foreground hover:text-foreground"
           >
             <Link href="#contact">

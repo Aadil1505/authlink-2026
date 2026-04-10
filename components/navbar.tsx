@@ -102,8 +102,8 @@ export function Navbar() {
 
               {/* Buttons */}
               <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-3 lg:w-auto">
-                <Button asChild size="sm">
-                  <Link href="#contact">Book a Demo</Link>
+                <Button asChild>
+                  <Link href="#demo">See a Demo</Link>
                 </Button>
               </div>
             </div>
