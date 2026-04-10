@@ -11,9 +11,19 @@ import {
   Check,
   Lock,
   Link,
+  Building2,
+  Calendar,
+  Clock,
+  ExternalLink,
+  Fingerprint,
+  Globe,
+  Hash,
+  KeyRound,
+  Tally5,
 } from "lucide-react"
 import { ReactNode } from "react"
 import { motion } from "motion/react"
+import Image from "next/image"
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const
 
@@ -64,59 +74,80 @@ const CardHeading = ({ icon: Icon, title, description }: CardHeadingProps) => (
 // ── Decorative UI elements ────────────────────────────────────
 
 const VerificationMockup = () => (
-  <div className="mx-auto mt-6 w-full max-w-[260px] overflow-hidden rounded-xl border border-border bg-background shadow-sm">
-    <div className="flex items-center gap-1.5 border-b border-border bg-muted/60 px-3 py-2.5">
-      <span className="size-2 rounded-full bg-border" />
-      <span className="size-2 rounded-full bg-border" />
-      <span className="size-2 rounded-full bg-border" />
-      <span className="mx-auto font-mono text-[10px] text-muted-foreground">
-        authlink.app/verify
-      </span>
-    </div>
-    <div className="flex flex-col items-center gap-4 px-5 py-6">
-      <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
-        <Check className="size-5 text-primary" strokeWidth={2.5} />
-      </div>
-      <div className="flex flex-col items-center gap-0.5 text-center">
-        <p className="font-heading text-base font-semibold text-foreground">Authentic</p>
-        <p className="text-xs text-muted-foreground">Jordan Air Max 1 · Nike, Inc.</p>
-      </div>
-      <div className="w-full space-y-1.5">
-        {["NFC verified", "Blockchain confirmed", "Manufacturer authenticated"].map((t) => (
-          <div key={t} className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Check className="size-3 shrink-0 text-primary" />
-            {t}
-          </div>
-        ))}
-      </div>
-    </div>
+  <div className="mt-6 w-full h-72 relative overflow-hidden">
+    <img
+      src="/desktop-img.png"
+      alt="Authlink verification browser screenshot"
+      className="absolute inset-0 w-full h-full object-contain"
+    />
   </div>
 )
 
 const BlockchainRecord = () => {
   const rows = [
-    { label: "Product ID", value: "JDN-AM1-2025" },
-    { label: "Registered", value: "Jan 14, 2025" },
-    { label: "Manufacturer", value: "Nike, Inc." },
-    { label: "Tap count", value: "3" },
-    { label: "Block", value: "#284,719,201" },
-    { label: "Status", value: "Verified" },
+    {
+      icon: <Fingerprint className="size-3" />,
+      label: "Tag UID",
+      content: <code className="text-[10px] font-mono bg-muted rounded px-1 py-0.5">0454151AC21390</code>,
+    },
+    {
+      icon: <Tally5 className="size-3" />,
+      label: "Counter",
+      content: <code className="text-[10px] font-mono bg-muted rounded px-1 py-0.5">000004</code>,
+    },
+    {
+      icon: <KeyRound className="size-3" />,
+      label: "CMAC",
+      content: <code className="text-[10px] font-mono bg-muted rounded px-1 py-0.5">7CDFACB7D9A8F7E4</code>,
+    },
+    {
+      icon: <Calendar className="size-3" />,
+      label: "Registered",
+      content: <span className="text-xs font-medium">April 9, 2026</span>,
+    },
+    {
+      icon: <Clock className="size-3" />,
+      label: "Time",
+      content: <span className="text-xs">10:10 PM EDT</span>,
+    },
+    {
+      icon: <Building2 className="size-3" />,
+      label: "Manufacturer",
+      content: <span className="text-xs font-medium text-primary">Authlink Test</span>,
+    },
+    {
+      icon: <Hash className="size-3" />,
+      label: "Transaction",
+      content: <code className="text-[10px] font-mono bg-muted rounded px-1 py-0.5">4VPhDv…7VU4</code>,
+    },
+    {
+      icon: <Globe className="size-3" />,
+      label: "Network",
+      content: <span className="text-xs capitalize">devnet</span>,
+    },
   ]
   return (
-    <div className="mx-auto mt-6 w-full max-w-[280px] overflow-hidden rounded-xl border border-border bg-background shadow-sm">
-      <div className="flex items-center gap-2 border-b border-border bg-muted/60 px-4 py-2.5">
-        <Lock className="size-3.5 text-primary" />
-        <span className="font-mono text-[10px] text-muted-foreground">
-          Solana · Immutable Record
-        </span>
+    <div className="mt-6 mx-auto w-full max-w-xs overflow-hidden rounded-xl border border-border">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
+        <div className="size-1.5 rounded-full bg-primary animate-pulse" />
+        <h2 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Product Record
+        </h2>
       </div>
       <div className="divide-y divide-border">
-        {rows.map(({ label, value }) => (
-          <div key={label} className="flex items-center justify-between px-4 py-2.5">
-            <span className="text-[11px] text-muted-foreground">{label}</span>
-            <span className="font-mono text-[11px] font-medium text-foreground">{value}</span>
+        {rows.map((row) => (
+          <div key={row.label} className="flex items-center justify-between px-3 py-2">
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              {row.icon}
+              <span className="text-xs">{row.label}</span>
+            </div>
+            {row.content}
           </div>
         ))}
+      </div>
+      <div className="flex items-center justify-between px-3 py-2 border-t border-border text-xs text-primary">
+        <span className="font-medium">View on Solana Explorer</span>
+        <ExternalLink className="size-3" />
       </div>
     </div>
   )
@@ -200,12 +231,13 @@ export function Features() {
 
           {/* Card 1 — Instant Verification */}
           <motion.div
+            className="h-full"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.5, ease, delay: 0 }}
           >
-            <FeatureCard>
+            <FeatureCard className="h-full">
               <CardHeader className="pb-0">
                 <CardHeading
                   icon={Zap}
@@ -221,12 +253,13 @@ export function Features() {
 
           {/* Card 2 — Blockchain Records */}
           <motion.div
+            className="h-full"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.5, ease, delay: 0.1 }}
           >
-            <FeatureCard>
+            <FeatureCard className="h-full">
               <CardHeader className="pb-0">
                 <CardHeading
                   icon={Link}
@@ -276,35 +309,18 @@ export function Features() {
                     ))}
                   </ul>
                 </div>
-                <div className="flex items-center justify-center">
-                  <div className="relative flex flex-col items-center gap-3">
-                    {/* Phone frame */}
-                    <div className="relative w-48 overflow-hidden rounded-3xl border-2 border-border bg-background shadow-md">
-                      <div className="flex justify-center border-b border-border bg-muted/60 py-2">
-                        <div className="h-1.5 w-12 rounded-full bg-border" />
-                      </div>
-                      <div className="flex flex-col items-center gap-3 px-4 py-6">
-                        <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
-                          <Check className="size-5 text-primary" strokeWidth={2.5} />
-                        </div>
-                        <p className="font-heading text-sm font-semibold text-foreground">Authentic</p>
-                        <div className="w-full space-y-1.5">
-                          {["NFC verified", "Blockchain confirmed"].map((t) => (
-                            <div key={t} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                              <Check className="size-2.5 shrink-0 text-primary" />
-                              {t}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex justify-center border-t border-border bg-muted/60 py-2">
-                        <div className="size-4 rounded-full border border-border" />
+                <div className="flex items-center justify-center py-4">
+                  <div className="relative flex flex-col items-center gap-6">
+                    <div className="relative flex items-center justify-center">
+                      <span className="absolute size-28 rounded-full bg-primary/10 animate-ping [animation-duration:1.4s]" />
+                      <span className="absolute size-20 rounded-full bg-primary/10 animate-ping [animation-duration:1.4s] [animation-delay:0.2s]" />
+                      <div className="relative rounded-full bg-primary/10 p-6 z-10">
+                        <ShieldCheck className="size-10 text-primary animate-pulse" strokeWidth={1.5} />
                       </div>
                     </div>
-                    {/* NFC tap label */}
-                    <div className="flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 shadow-sm">
-                      <ShieldCheck className="size-3.5 text-primary" />
-                      <span className="text-xs font-medium text-foreground">Tap to verify</span>
+                    <div className="text-center space-y-1.5">
+                      <p className="text-sm font-semibold text-foreground">Verifying authenticity</p>
+                      <p className="text-xs text-muted-foreground">Checking hardware signature and blockchain record…</p>
                     </div>
                   </div>
                 </div>
