@@ -21,12 +21,7 @@ export default function TagsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleRevoke = (id: string) =>
-    setTags((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, active: false } : t))
-    );
-
-  const columns = getColumns(handleRevoke);
+  const columns = getColumns();
 
   return (
     <div className="flex flex-col gap-6 p-4 pt-0">
@@ -38,7 +33,7 @@ export default function TagsPage() {
           </p>
         </div>
         <Button asChild size="sm">
-          <Link href="/dashboard/tags/new">
+          <Link href="/dashboard/tags/personalize">
             <PlusIcon className="size-4 mr-1.5" />
             Register Tag
           </Link>

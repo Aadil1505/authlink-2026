@@ -179,7 +179,7 @@ export default function NewTagPage() {
 
       <div className="flex flex-col gap-6 max-w-xl mx-auto w-full">
         <div>
-          <h2 className="text-xl font-semibold">Personalize & Register Tag</h2>
+          <h2 className="text-xl font-semibold">Personalize Tag</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Place a blank NFC tag on the reader, select a product, then click Register.
             The chip is personalized and recorded on-chain in one step.
@@ -238,9 +238,9 @@ export default function NewTagPage() {
               <div className="flex gap-3 pt-1">
                 <Button type="submit" disabled={!canSubmit}>
                   {loading ? (
-                    <><LoaderCircleIcon className="size-4 mr-2 animate-spin" />Personalizing & Registering…</>
+                    <><LoaderCircleIcon className="size-4 mr-2 animate-spin" />Personalizing…</>
                   ) : (
-                    <><NfcIcon className="size-4 mr-2" />Personalize & Register</>
+                    <><NfcIcon className="size-4 mr-2" />Personalize</>
                   )}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>

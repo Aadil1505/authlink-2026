@@ -6,6 +6,7 @@ import { tag, product } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { registerTagOnChain } from "@/lib/solana";
 
+
 async function getSession() {
   return auth.api.getSession({ headers: await headers() });
 }
@@ -22,8 +23,6 @@ export async function GET() {
       productName: product.name,
       manufacturerPda: tag.manufacturerPda,
       registrationTx: tag.registrationTx,
-      revocationTx: tag.revocationTx,
-      active: tag.active,
       registeredAt: tag.registeredAt,
     })
     .from(tag)

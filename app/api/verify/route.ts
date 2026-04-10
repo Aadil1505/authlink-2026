@@ -50,18 +50,6 @@ export async function GET(req: NextRequest) {
 
   const { tag: tagRecord, product: productRecord } = rows[0];
 
-  if (!tagRecord.active) {
-    return NextResponse.json(
-      {
-        authentic: false,
-        error: "Product has been recalled or deactivated",
-        manufacturerPda: tagRecord.manufacturerPda,
-        revocationTx: tagRecord.revocationTx,
-      },
-      { status: 403 }
-    );
-  }
-
   return NextResponse.json({
     authentic: true,
     uid: tagRecord.uid,

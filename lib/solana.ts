@@ -87,9 +87,6 @@ function encodeRegisterProduct(uidHash: Buffer, metadataUri: string): Buffer {
   ]);
 }
 
-function encodeRevokeProduct(uidHash: Buffer): Buffer {
-  return Buffer.concat([disc("revoke_product"), uidHash]);
-}
 
 // ── On-chain calls ────────────────────────────────────────────────────────────
 
@@ -170,34 +167,6 @@ export async function registerTagOnChain(
   return { signature, manufacturerPda: manufacturerPda.toBase58() };
 }
 
-/**
- * Revoke a tag on-chain by emitting a ProductRevoked event.
- * Returns the revocation transaction signature.
- */
-export async function revokeTagOnChain(
-  uid: string,
-  userId: string
-): Promise<string> {
-  const admin = getAdminKeypair();
-  const connection = new Connection(RPC_URL, "confirmed");
-
-  const manufacturerPda = deriveManufacturerPda(userId);
-  const configPda = deriveConfigPda();
-  const uidHash = hashUid(uid);
-
-  const ix = new TransactionInstruction({
-    programId: PROGRAM_ID,
-    keys: [
-      { pubkey: manufacturerPda, isSigner: false, isWritable: false },
-      { pubkey: configPda, isSigner: false, isWritable: false },
-      { pubkey: admin.publicKey, isSigner: true, isWritable: true },
-    ],
-    data: encodeRevokeProduct(uidHash),
-  });
-
-  const tx = new Transaction().add(ix);
-  return sendAndConfirmTransaction(connection, tx, [admin]);
-}
 
 // ── Explorer ──────────────────────────────────────────────────────────────────
 

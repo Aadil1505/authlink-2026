@@ -98,7 +98,7 @@ export function Hero() {
               <span className="size-2.5 rounded-full bg-border" />
               <span className="size-2.5 rounded-full bg-border" />
               <span className="mx-auto font-mono text-[11px] text-muted-foreground">
-                authlink.io/verify/a3f9…
+                authlink.app/verify/a3f9…
               </span>
             </div>
 

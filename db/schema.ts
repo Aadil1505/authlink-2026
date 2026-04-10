@@ -135,8 +135,6 @@ export const tag = pgTable(
       .references(() => user.id, { onDelete: "restrict" }),
     manufacturerPda: text("manufacturer_pda").notNull(),
     registrationTx: text("registration_tx").notNull(),
-    revocationTx: text("revocation_tx"),
-    active: boolean("active").default(true).notNull(),
     registeredAt: timestamp("registered_at").defaultNow().notNull(),
   },
   (table) => [

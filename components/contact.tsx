@@ -49,10 +49,10 @@ export function Contact() {
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="size-3.5 shrink-0" />
                 <a
-                  href="mailto:hello@authlink.io"
+                  href="mailto:hello@authlink.app"
                   className="transition-colors hover:text-foreground"
                 >
-                  hello@authlink.io
+                  hello@authlink.app
                 </a>
               </div>
             </div>

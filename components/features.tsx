@@ -70,7 +70,7 @@ const VerificationMockup = () => (
       <span className="size-2 rounded-full bg-border" />
       <span className="size-2 rounded-full bg-border" />
       <span className="mx-auto font-mono text-[10px] text-muted-foreground">
-        authlink.io/verify
+        authlink.app/verify
       </span>
     </div>
     <div className="flex flex-col items-center gap-4 px-5 py-6">
