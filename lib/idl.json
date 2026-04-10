@@ -10,7 +10,7 @@
     {
       "name": "deactivate_manufacturer",
       "docs": [
-        "Admin deactivates a manufacturer — their existing products remain, new ones blocked."
+        "Admin deactivates a manufacturer."
       ],
       "discriminator": [
         114,
@@ -47,7 +47,7 @@
               },
               {
                 "kind": "account",
-                "path": "manufacturer_record.authority",
+                "path": "manufacturer_record.manufacturer_id",
                 "account": "ManufacturerRecord"
               }
             ]
@@ -82,7 +82,7 @@
     {
       "name": "initialize",
       "docs": [
-        "Called once at deployment. Sets the admin wallet that controls manufacturer registration."
+        "Called once at deployment. Sets the admin wallet."
       ],
       "discriminator": [
         175,
@@ -129,7 +129,8 @@
     {
       "name": "register_manufacturer",
       "docs": [
-        "Admin registers a manufacturer wallet, allowing them to register products."
+        "Admin registers a manufacturer using their Authlink DB user ID.",
+        "Creates one ManufacturerRecord PDA per manufacturer."
       ],
       "discriminator": [
         209,
@@ -165,14 +166,11 @@
                 ]
               },
               {
-                "kind": "account",
-                "path": "manufacturer"
+                "kind": "arg",
+                "path": "manufacturer_id"
               }
             ]
           }
-        },
-        {
-          "name": "manufacturer"
         },
         {
           "name": "config",
@@ -204,6 +202,10 @@
       ],
       "args": [
         {
+          "name": "manufacturer_id",
+          "type": "string"
+        },
+        {
           "name": "name",
           "type": "string"
         }
@@ -212,8 +214,9 @@
     {
       "name": "register_product",
       "docs": [
-        "Manufacturer registers a product. uid_hash = keccak256(tag_uid).",
-        "PDA created at seeds [\"product\", uid_hash] — its existence = registered."
+        "Admin registers a physical NFC tag by emitting a ProductRegistered event.",
+        "No account is created — the transaction signature is the proof.",
+        "uid_hash = keccak256(tag_uid_bytes)"
       ],
       "discriminator": [
         224,
@@ -226,30 +229,6 @@
         43
       ],
       "accounts": [
-        {
-          "name": "product_record",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  114,
-                  111,
-                  100,
-                  117,
-                  99,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "uid_hash"
-              }
-            ]
-          }
-        },
         {
           "name": "manufacturer_record",
           "pda": {
@@ -273,19 +252,34 @@
               },
               {
                 "kind": "account",
-                "path": "manufacturer"
+                "path": "manufacturer_record.manufacturer_id",
+                "account": "ManufacturerRecord"
               }
             ]
           }
         },
         {
-          "name": "manufacturer",
-          "writable": true,
-          "signer": true
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "name": "admin",
+          "writable": true,
+          "signer": true
         }
       ],
       "args": [
@@ -307,7 +301,7 @@
     {
       "name": "revoke_product",
       "docs": [
-        "Manufacturer revokes a product (recall, fraud, etc). Sets active = false."
+        "Admin emits a ProductRevoked event for a recalled tag."
       ],
       "discriminator": [
         142,
@@ -320,31 +314,6 @@
         192
       ],
       "accounts": [
-        {
-          "name": "product_record",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  114,
-                  111,
-                  100,
-                  117,
-                  99,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "product_record.uid_hash",
-                "account": "ProductRecord"
-              }
-            ]
-          }
-        },
         {
           "name": "manufacturer_record",
           "pda": {
@@ -368,17 +337,47 @@
               },
               {
                 "kind": "account",
-                "path": "manufacturer"
+                "path": "manufacturer_record.manufacturer_id",
+                "account": "ManufacturerRecord"
               }
             ]
           }
         },
         {
-          "name": "manufacturer",
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "writable": true,
           "signer": true
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "uid_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
     }
   ],
   "accounts": [
@@ -393,19 +392,6 @@
         158,
         77,
         228
-      ]
-    },
-    {
-      "name": "ProductRecord",
-      "discriminator": [
-        213,
-        201,
-        174,
-        225,
-        27,
-        37,
-        156,
-        86
       ]
     },
     {
@@ -448,6 +434,19 @@
         170,
         221
       ]
+    },
+    {
+      "name": "ProductRevoked",
+      "discriminator": [
+        114,
+        58,
+        255,
+        170,
+        54,
+        23,
+        59,
+        93
+      ]
     }
   ],
   "errors": [
@@ -463,24 +462,36 @@
     },
     {
       "code": 6002,
+      "name": "IdTooLong",
+      "msg": "Manufacturer ID exceeds maximum length of 36 characters"
+    },
+    {
+      "code": 6003,
       "name": "NameTooLong",
       "msg": "Name exceeds maximum length of 64 characters"
     },
     {
-      "code": 6003,
+      "code": 6004,
       "name": "UriTooLong",
-      "msg": "Metadata URI exceeds maximum length of 128 characters"
+      "msg": "Metadata URI exceeds maximum length of 200 characters"
     }
   ],
   "types": [
     {
       "name": "ManufacturerRecord",
+      "docs": [
+        "One PDA per manufacturer, keyed by their Authlink DB user ID.",
+        "Seeds: [b\"manufacturer\", manufacturer_id.as_bytes()]",
+        "",
+        "No per-tag accounts exist. Tag registrations are recorded as on-chain",
+        "events (ProductRegistered / ProductRevoked) — cheap, permanent, verifiable."
+      ],
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "authority",
-            "type": "pubkey"
+            "name": "manufacturer_id",
+            "type": "string"
           },
           {
             "name": "name",
@@ -507,8 +518,8 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "authority",
-            "type": "pubkey"
+            "name": "manufacturer_id",
+            "type": "string"
           },
           {
             "name": "name",
@@ -517,43 +528,6 @@
           {
             "name": "registered_at",
             "type": "i64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "ProductRecord",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "manufacturer",
-            "type": "pubkey"
-          },
-          {
-            "name": "uid_hash",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "registered_at",
-            "type": "i64"
-          },
-          {
-            "name": "metadata_uri",
-            "type": "string"
-          },
-          {
-            "name": "active",
-            "type": "bool"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
           }
         ]
       }
@@ -573,11 +547,40 @@
             }
           },
           {
-            "name": "manufacturer",
+            "name": "manufacturer_pda",
             "type": "pubkey"
           },
           {
+            "name": "metadata_uri",
+            "type": "string"
+          },
+          {
             "name": "registered_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProductRevoked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "uid_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "manufacturer_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "revoked_at",
             "type": "i64"
           }
         ]

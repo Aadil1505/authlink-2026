@@ -3,7 +3,7 @@ config({ path: '.env.local' });
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
-  out: './db/drizzle.ts',
+  out: './db/migrations',
   schema: './db/schema.ts',
   dialect: 'postgresql',
   dbCredentials: {

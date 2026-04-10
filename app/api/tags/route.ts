@@ -62,10 +62,10 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "NTAG_PERSONALIZER_URL is not configured" }, { status: 503 });
   }
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.BETTER_AUTH_URL ??
-    "http://localhost:3000";
+  const appUrl = process.env.TAG_BASE_URL;
+  if (!appUrl) {
+    return Response.json({ error: "TAG_BASE_URL is not configured" }, { status: 503 });
+  }
 
   // URL written to the tag — params are filled in by the chip at scan time
   const checkUrl = `${appUrl}/check?uid={uid}&ctr={counter}&cmac={cmac}`;
@@ -115,17 +115,27 @@ export async function POST(req: NextRequest) {
   }
 
   // Step 3 — persist in Postgres
-  const [created] = await db
-    .insert(tag)
-    .values({
-      id: crypto.randomUUID(),
-      uid,
-      productId,
-      userId: session.user.id,
-      manufacturerPda,
-      registrationTx: signature,
-    })
-    .returning();
+  let created;
+  try {
+    [created] = await db
+      .insert(tag)
+      .values({
+        id: crypto.randomUUID(),
+        uid,
+        productId,
+        userId: session.user.id,
+        manufacturerPda,
+        registrationTx: signature,
+      })
+      .returning();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    // Unique constraint on uid means this tag was already registered
+    if (msg.includes("unique") || msg.includes("duplicate")) {
+      return Response.json({ error: "This tag UID is already registered" }, { status: 409 });
+    }
+    return Response.json({ error: `Database error: ${msg}` }, { status: 500 });
+  }
 
   return Response.json(created, { status: 201 });
 }

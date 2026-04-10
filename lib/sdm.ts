@@ -20,7 +20,7 @@ export async function validateTag(
     throw new Error("SDM_BACKEND_URL is not configured");
   }
 
-  const url = new URL(`${SDM_BACKEND_URL}/api/tagpt`);
+  const url = new URL(`${SDM_BACKEND_URL.replace(/\/$/, "")}/api/tagpt`);
   url.searchParams.set("uid", uid);
   url.searchParams.set("ctr", ctr);
   url.searchParams.set("cmac", cmac);

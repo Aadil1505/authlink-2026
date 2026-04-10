@@ -34,12 +34,20 @@ export async function GET(req: NextRequest) {
   }
 
   // Layer 2 — Registry lookup
-  const rows = await db
-    .select({ tag: tag, product: product })
-    .from(tag)
-    .innerJoin(product, eq(tag.productId, product.id))
-    .where(eq(tag.uid, uid.toUpperCase()))
-    .limit(1);
+  let rows;
+  try {
+    rows = await db
+      .select({ tag: tag, product: product })
+      .from(tag)
+      .innerJoin(product, eq(tag.productId, product.id))
+      .where(eq(tag.uid, uid.toUpperCase()))
+      .limit(1);
+  } catch (err) {
+    return NextResponse.json(
+      { authentic: false, error: "Registry lookup failed", detail: String(err) },
+      { status: 500 }
+    );
+  }
 
   if (rows.length === 0) {
     return NextResponse.json(

@@ -160,8 +160,8 @@ export default function NewTagPage() {
       const data = await res.json();
       if (!res.ok) { setSubmitError(data.error ?? "Something went wrong"); return; }
       router.push("/dashboard/tags");
-    } catch {
-      setSubmitError("Failed to register tag. Please try again.");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Failed to register tag. Please try again.");
     } finally {
       setLoading(false);
     }
